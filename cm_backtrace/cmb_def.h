@@ -60,7 +60,7 @@
 #endif
 
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6120001))
     /* C stack block name, default is STACK */
     #ifndef CMB_CSTACK_BLOCK_NAME
     #define CMB_CSTACK_BLOCK_NAME          STACK
@@ -271,7 +271,7 @@ if (!(EXPR))                                                                   \
 }
 
 /* ELF(Executable and Linking Format) file extension name for each compiler */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6120001))
     #define CMB_ELF_FILE_EXTENSION_NAME          ".axf"
 #elif defined(__ICCARM__)
     #define CMB_ELF_FILE_EXTENSION_NAME          ".out"
@@ -345,7 +345,7 @@ if (!(EXPR))                                                                   \
       __asm("bx lr");       
     }
 #pragma diag_default=Pe940  
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6120001))
     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_msp(void) {
         register uint32_t result;
         __asm volatile ("MRS %0, msp\n" : "=r" (result) );

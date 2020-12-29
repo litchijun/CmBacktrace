@@ -31,7 +31,6 @@
 
 #include "cmb_cfg.h"
 #include <stdint.h>
-#include <stdlib.h>
 
 /* library software version number */
 #define CMB_SW_VERSION                "1.4.0"
@@ -279,6 +278,10 @@ if (!(EXPR))                                                                   \
     #define CMB_ELF_FILE_EXTENSION_NAME          ".elf"
 #else
     #error "not supported compiler"
+#endif
+
+#ifndef cmb_print
+    #error "cmb_print isn't defined in 'cmb_cfg.h'"
 #endif
 
 #ifndef cmb_println

@@ -112,7 +112,7 @@ static const char * const print_info[] = {
         [PRINT_MAIN_STACK_INFO]       = "====== Main stack information ======",
         [PRINT_THREAD_STACK_OVERFLOW] = "Error: Thread stack(%08x) was overflow",
         [PRINT_MAIN_STACK_OVERFLOW]   = "Error: Main stack(%08x) was overflow",
-        [PRINT_CALL_STACK_INFO]       = "Show more call stack info by run: addr2line -e %s%s -a -f %.*s",
+        [PRINT_CALL_STACK_INFO]       = "Show more call stack info by run: addr2line -e %s%s -a -f ",
         [PRINT_CALL_STACK_ERR]        = "Dump call stack has an error",
         [PRINT_FAULT_ON_THREAD]       = "Fault on thread %s",
         [PRINT_FAULT_ON_HANDLER]      = "Fault on interrupt or bare metal(no OS) environment",
@@ -151,7 +151,7 @@ static const char * const print_info[] = {
         [PRINT_MAIN_STACK_INFO]       = "============ 主堆栈信息 ============",
         [PRINT_THREAD_STACK_OVERFLOW] = "错误：线程栈(%08x)发生溢出",
         [PRINT_MAIN_STACK_OVERFLOW]   = "错误：主栈(%08x)发生溢出",
-        [PRINT_CALL_STACK_INFO]       = "查看更多函数调用栈信息，请运行：addr2line -e %s%s -a -f %.*s",
+        [PRINT_CALL_STACK_INFO]       = "查看更多函数调用栈信息，请运行：addr2line -e %s%s -a -f ",
         [PRINT_CALL_STACK_ERR]        = "获取函数调用栈失败",
         [PRINT_FAULT_ON_THREAD]       =  "在线程(%s)中发生错误异常",
         [PRINT_FAULT_ON_HANDLER]      = "在中断或裸机环境下发生错误异常",
@@ -194,7 +194,6 @@ static size_t main_stack_size = 0;
 static uint32_t code_start_addr = 0;
 static size_t code_size = 0;
 static bool init_ok = false;
-static char call_stack_info[CMB_CALL_STACK_MAX_DEPTH * (8 + 1)] = { 0 };
 static bool on_fault = false;
 static bool stack_is_overflow = false;
 static struct cmb_hard_fault_regs regs;
@@ -433,16 +432,14 @@ static void print_call_stack(uint32_t sp) {
 
     cur_depth = cm_backtrace_call_stack(call_stack_buf, CMB_CALL_STACK_MAX_DEPTH, sp);
 
-    for (i = 0; i < cur_depth; i++) {
-        sprintf(call_stack_info + i * (8 + 1), "%08x", call_stack_buf[i]);
-        call_stack_info[i * (8 + 1) + 8] = ' ';
+    if (0 == cur_depth) {
+        cmb_println(print_info[PRINT_CALL_STACK_ERR]);
+        return;
     }
 
-    if (cur_depth) {
-        cmb_println(print_info[PRINT_CALL_STACK_INFO], fw_name, CMB_ELF_FILE_EXTENSION_NAME, cur_depth * (8 + 1),
-                call_stack_info);
-    } else {
-        cmb_println(print_info[PRINT_CALL_STACK_ERR]);
+    cmb_print(print_info[PRINT_CALL_STACK_INFO], fw_name, CMB_ELF_FILE_EXTENSION_NAME);
+    for (i = 0; i < cur_depth; i++) {
+        cmb_print(" %08x ", call_stack_buf[i]);
     }
 }
 
